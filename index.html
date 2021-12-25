@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="car.js"></script>
+    <script src="opstacle.js"></script>
+</head>
+<body>
+<canvas id="myCanvas" width="1368" height="768" style="border: solid 1px rebeccapurple"></canvas>
+<script>
+    let canvas = document.getElementById("myCanvas");
+    let ctx = canvas.getContext('2d');
+    let myCar = new Car(200, 400, 150, 75, 50, 'img/car2.png')
+    let opstacle = new Opstacle(100, 0, 50, 50);
+    let isGameover = false;
+    let intervalId = -1;
+    myCar.drawCar(ctx);
+    opstacle.drawOpstacle(ctx);
+
+    function moveCar(event) {
+        if(isGameover === false){
+            switch (event.keyCode) {
+                case 37 : {
+                    if (myCar.x < 10) {
+                        return;
+                    }
+
+                    myCar.moveLeft();
+                    break;
+                }
+                case 39 : {
+                    if (myCar.x + myCar.width > canvas.clientWidth) {
+                        return;
+                    }
+
+                    myCar.moveRight();
+                    break;
+                }
+                case 38 : {
+                    if (myCar.y < 30) {
+                        return;
+                    }
+
+                    myCar.moveUp();
+                    break;
+                }
+                case 40 : {
+                    if (myCar.y + myCar.height > canvas.clientHeight) {
+                        return;
+                    }
+
+                    myCar.moveDown();
+                    break;
+                }
+                case 32 : {
+                    myCar.upSpeed();
+                    break;
+                }
+            }
+            if (checkCollision()) {
+                isGameover = true;
+                alert("Thua rồi!!!");
+            }
+            updateCanvas();
+        }
+
+
+    }
+
+
+    function clearCanvas() {
+        ctx.clearRect(0, 0, 1368, 768)
+    }
+
+    function moveOpstacle() {
+        if (opstacle.y > canvas.clientHeight) {
+            opstacle.y = 0;
+            opstacle.x = Math.random() * canvas.clientWidth;
+        }
+        opstacle.moveDown();
+        updateCanvas();
+        if (checkCollision()) {
+            alert("Thua rồi!!!");
+            isGameover = true;
+            cancelAnimationFrame(intervalId);
+        } else {
+            intervalId = requestAnimationFrame(moveOpstacle);
+
+        }
+
+    }
+
+    function updateCanvas() {
+        clearCanvas();
+        opstacle.drawOpstacle(ctx);
+        myCar.drawCar(ctx)
+    }
+
+    function checkCollision() {
+        if (opstacle.x >= myCar.x && opstacle.x <= myCar.width + myCar.x && opstacle.y + opstacle.height >= myCar.y) {
+            if (opstacle.x + opstacle.width >= myCar.x && opstacle.x + opstacle.width <= myCar.x + myCar.width) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    moveOpstacle();
+    document.addEventListener("keydown", moveCar);
+
+</script>
+</body>
+</html>
